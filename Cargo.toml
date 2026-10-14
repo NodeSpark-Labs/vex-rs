@@ -1,0 +1,38 @@
+[package]
+name = "antelope"
+version = "1.2.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Rust library for working with Antelope powered blockchains (VEXANIUM compatible). Rust port of @pixelgeniusid/antelope."
+license = "BSD-3-Clause"
+repository = "https://github.com/NodeSpark-Labs/jws-rs"
+readme = "README.md"
+keywords = ["antelope", "eosio", "vexanium", "blockchain", "abi"]
+categories = ["cryptography::cryptocurrencies", "encoding"]
+
+[features]
+default = ["api", "p2p"]
+# HTTP API client (v1 chain / history) using reqwest.
+api = ["dep:reqwest", "dep:async-trait"]
+# P2P protocol client using tokio streams.
+p2p = ["dep:tokio", "dep:async-trait"]
+
+[dependencies]
+k256 = { version = "0.13", features = ["ecdsa", "ecdh", "arithmetic"] }
+p256 = { version = "0.13", features = ["ecdsa", "ecdh", "arithmetic"] }
+ecdsa = { version = "0.16", features = ["rfc6979", "hazmat", "verifying", "signing"] }
+sha2 = "0.10"
+ripemd = "0.1"
+rand_core = { version = "0.6", features = ["getrandom"] }
+base64 = "0.22"
+flate2 = "1"
+chrono = { version = "0.4", default-features = false, features = ["alloc", "std", "clock"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+thiserror = "2"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"], optional = true }
+async-trait = { version = "0.1", optional = true }
+tokio = { version = "1", features = ["io-util", "net", "sync"], optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-util", "net"] }
