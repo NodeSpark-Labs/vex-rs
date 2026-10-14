@@ -4,7 +4,7 @@ version = "1.2.0"
 edition = "2021"
 rust-version = "1.75"
 description = "Rust library for working with Antelope powered blockchains (VEXANIUM compatible). Rust port of @pixelgeniusid/antelope."
-license = "BSD-3-Clause"
+license-file = "LICENSE"
 repository = "https://github.com/NodeSpark-Labs/jws-rs"
 readme = "README.md"
 keywords = ["antelope", "eosio", "vexanium", "blockchain", "abi"]
@@ -35,4 +35,21 @@ async-trait = { version = "0.1", optional = true }
 tokio = { version = "1", features = ["io-util", "net", "sync"], optional = true }
 
 [dev-dependencies]
+async-trait = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-util", "net"] }
+
+[[test]]
+name = "api"
+required-features = ["api"]
+
+[[test]]
+name = "p2p"
+required-features = ["p2p"]
+
+[[example]]
+name = "transfer"
+required-features = ["api"]
+
+[[example]]
+name = "backend_state"
+required-features = ["api"]

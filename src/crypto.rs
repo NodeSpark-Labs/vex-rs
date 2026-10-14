@@ -57,11 +57,7 @@ macro_rules! curve_impl {
                 Ok(bytes[first..].to_vec())
             }
 
-            fn find_recid(
-                sig: &Signature,
-                digest: &[u8],
-                expected: &VerifyingKey,
-            ) -> Result<u8> {
+            fn find_recid(sig: &Signature, digest: &[u8], expected: &VerifyingKey) -> Result<u8> {
                 for i in 0..4u8 {
                     let recid = RecoveryId::from_byte(i).expect("valid recid");
                     if let Ok(key) = VerifyingKey::recover_from_prehash(digest, sig, recid) {

@@ -85,7 +85,12 @@ fn split_checksum(decoded: &[u8]) -> Result<(&[u8], &[u8]), Base58Error> {
     Ok(decoded.split_at(decoded.len() - 4))
 }
 
-fn checksum_error(actual: [u8; 4], expected: &[u8], data: &[u8], hash: &'static str) -> Base58Error {
+fn checksum_error(
+    actual: [u8; 4],
+    expected: &[u8],
+    data: &[u8],
+    hash: &'static str,
+) -> Base58Error {
     Base58Error {
         message: "Checksum mismatch".into(),
         code: Base58ErrorCode::Checksum,

@@ -107,7 +107,10 @@ impl Action {
     /// Decode action data to JSON using the contract ABI.
     pub fn decode_data_with_abi(&self, abi: &ABI) -> Result<serde_json::Value> {
         let r#type = abi.get_action_type(self.name).ok_or_else(|| {
-            Error::msg(format!("Action {} does not exist in provided ABI", self.name))
+            Error::msg(format!(
+                "Action {} does not exist in provided ABI",
+                self.name
+            ))
         })?;
         decode_json(abi, r#type, &self.data, &DecodeOptions::default())
     }

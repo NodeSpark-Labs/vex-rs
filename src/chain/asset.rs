@@ -132,7 +132,9 @@ impl Symbol {
             return Err(Error::msg("Invalid asset symbol, precision too large"));
         }
         if value != 0 && !is_valid_symbol_name(&to_symbol_name(value)) {
-            return Err(Error::msg("Invalid asset symbol, name must be uppercase A-Z"));
+            return Err(Error::msg(
+                "Invalid asset symbol, name must be uppercase A-Z",
+            ));
         }
         Ok(Symbol(value))
     }
@@ -223,7 +225,9 @@ pub struct SymbolCode(u64);
 impl SymbolCode {
     pub fn from_raw(value: u64) -> Result<Self> {
         if value != 0 && !is_valid_symbol_name(&chars_to_symbol_name(value)) {
-            return Err(Error::msg("Invalid asset symbol, name must be uppercase A-Z"));
+            return Err(Error::msg(
+                "Invalid asset symbol, name must be uppercase A-Z",
+            ));
         }
         Ok(SymbolCode(value))
     }

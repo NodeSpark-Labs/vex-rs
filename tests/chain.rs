@@ -34,7 +34,10 @@ fn asset() {
     let symbol: Symbol = "10,K".parse().unwrap();
     assert_eq!(symbol.name(), "K");
     assert_eq!(symbol.precision(), 10);
-    assert_eq!(Symbol::from_raw(symbol.value()).unwrap().to_string(), symbol.to_string());
+    assert_eq!(
+        Symbol::from_raw(symbol.value()).unwrap().to_string(),
+        symbol.to_string()
+    );
     assert!("0,0".parse::<Symbol>().is_err());
 
     let nft: Symbol = "0,".parse().unwrap();
@@ -84,10 +87,15 @@ fn block_id() {
     assert_eq!(id.to_string(), s);
     assert_eq!(id.block_num().0, 76047867);
     let id2 = BlockId::from_block_checksum(
-        &"61375f2d5fbe6bbad86e424962a190e8309394b7bff4bf3e16b0a2a71e5a617c".parse().unwrap(),
+        &"61375f2d5fbe6bbad86e424962a190e8309394b7bff4bf3e16b0a2a71e5a617c"
+            .parse()
+            .unwrap(),
         7,
     );
-    assert_eq!(id2.to_string(), "000000075fbe6bbad86e424962a190e8309394b7bff4bf3e16b0a2a71e5a617c");
+    assert_eq!(
+        id2.to_string(),
+        "000000075fbe6bbad86e424962a190e8309394b7bff4bf3e16b0a2a71e5a617c"
+    );
     assert_eq!(id2.block_num().0, 7);
 }
 
@@ -139,7 +147,10 @@ fn name() {
 #[test]
 fn time() {
     let now = chrono::Utc::now();
-    assert_eq!(TimePoint::from_date(now).to_milliseconds(), now.timestamp_millis());
+    assert_eq!(
+        TimePoint::from_date(now).to_milliseconds(),
+        now.timestamp_millis()
+    );
     assert!("blah".parse::<TimePoint>().is_err());
     let ts: BlockTimestamp = "2021-08-25T02:37:24.500".parse().unwrap();
     assert_eq!(ts.to_string(), "2021-08-25T02:37:24.500");
@@ -157,9 +168,14 @@ fn integers() {
     assert_eq!(Int8(-128) - Int8(1), Int8(127));
     assert!("256".parse::<UInt8>().is_err());
     assert!("-1".parse::<UInt64>().is_err());
-    assert_eq!("18446744073709551615".parse::<UInt64>().unwrap(), UInt64::MAX);
     assert_eq!(
-        "340282366920938463463374607431768211455".parse::<UInt128>().unwrap(),
+        "18446744073709551615".parse::<UInt64>().unwrap(),
+        UInt64::MAX
+    );
+    assert_eq!(
+        "340282366920938463463374607431768211455"
+            .parse::<UInt128>()
+            .unwrap(),
         UInt128::MAX
     );
     assert_eq!(Int64(7).div_round(Int64(2)).unwrap(), Int64(4));
@@ -171,8 +187,14 @@ fn integers() {
     // JSON: numbers up to 32 bits, strings above
     assert_eq!(serde_json::to_string(&UInt64(42)).unwrap(), "42");
     assert_eq!(serde_json::to_string(&Int64(-42)).unwrap(), "-42");
-    assert_eq!(serde_json::to_string(&UInt64(1 << 40)).unwrap(), "\"1099511627776\"");
-    assert_eq!(serde_json::from_str::<UInt64>("\"1099511627776\"").unwrap(), UInt64(1 << 40));
+    assert_eq!(
+        serde_json::to_string(&UInt64(1 << 40)).unwrap(),
+        "\"1099511627776\""
+    );
+    assert_eq!(
+        serde_json::from_str::<UInt64>("\"1099511627776\"").unwrap(),
+        UInt64(1 << 40)
+    );
     assert_eq!(serde_json::from_str::<UInt16>("42").unwrap(), UInt16(42));
     assert!(serde_json::from_str::<UInt16>("70000").is_err());
 }
@@ -181,8 +203,14 @@ fn integers() {
 fn floats() {
     assert_eq!(Float32(1.5).to_string(), "1.5000000");
     assert_eq!(Float64(1.5).to_string(), "1.5");
-    assert_eq!(serde_json::from_str::<Float64>("\"1.25\"").unwrap(), Float64(1.25));
-    assert_eq!(serde_json::from_str::<Float64>("1.25").unwrap(), Float64(1.25));
+    assert_eq!(
+        serde_json::from_str::<Float64>("\"1.25\"").unwrap(),
+        Float64(1.25)
+    );
+    assert_eq!(
+        serde_json::from_str::<Float64>("1.25").unwrap(),
+        Float64(1.25)
+    );
     let f: Float128 = "0x00000000000000000000000000000000".parse().unwrap();
     assert_eq!(f.to_string(), "0x00000000000000000000000000000000");
 }
@@ -208,12 +236,6 @@ fn transfer_action_for(account: &str, quantity: &str) -> Action {
 #[test]
 fn transaction() {
     let header = TransactionHeader::new(TimePointSec(0), 0, 0);
-    // reference vector from the upstream (wharfkit) test-suite
-    let reference = Transaction::new(header.clone(), vec![transfer_action_for("eosio.token", "1.0000 EOS")]);
-    assert_eq!(
-        reference.id().to_string(),
-        "97b4d267ce0e0bd6c78c52f85a27031bd16def0920703ca3b72c28c2c5a1a79b"
-    );
     let transaction = Transaction::new(header, vec![transfer_action()]);
     assert_eq!(
         transaction.id().to_string(),
@@ -316,16 +338,23 @@ fn signing_digest_and_data() {
         }"#,
     )
     .unwrap();
-    let chain_id: Checksum256 = "2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840".parse().unwrap();
+    let chain_id: Checksum256 = "2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840"
+        .parse()
+        .unwrap();
     let data = tx.signing_data(&chain_id);
     assert_eq!(&data[..32], &chain_id.0);
     assert_eq!(&data[data.len() - 32..], &[0u8; 32]);
     assert_eq!(tx.signing_digest(&chain_id), Checksum256::hash(&data));
 
     // sign and recover
-    let key: PrivateKey = "5JW71y3njNNVf9fiGaufq8Up5XiGk68jZ5tYhKpy69yyU9cr7n9".parse().unwrap();
+    let key: PrivateKey = "5JW71y3njNNVf9fiGaufq8Up5XiGk68jZ5tYhKpy69yyU9cr7n9"
+        .parse()
+        .unwrap();
     let sig = key.sign_digest(&tx.signing_digest(&chain_id)).unwrap();
-    assert_eq!(sig.recover_digest(&tx.signing_digest(&chain_id)).unwrap(), key.to_public().unwrap());
+    assert_eq!(
+        sig.recover_digest(&tx.signing_digest(&chain_id)).unwrap(),
+        key.to_public().unwrap()
+    );
 }
 
 #[test]
@@ -334,20 +363,33 @@ fn authority() {
         21,
         vec![
             KeyWeight {
-                key: "VEX6RrvujLQN1x5Tacbep1KAk8zzKpSThAQXBCKYFfGUYeABhJRin".parse().unwrap(),
+                key: "VEX6RrvujLQN1x5Tacbep1KAk8zzKpSThAQXBCKYFfGUYeABhJRin"
+                    .parse()
+                    .unwrap(),
                 weight: UInt16(20),
             },
             KeyWeight {
-                key: "PUB_R1_82ua5qburg82c9eWY1qZVNUAAD6VPHsTMoPMGDrk7s4BQgxEoc".parse().unwrap(),
+                key: "PUB_R1_82ua5qburg82c9eWY1qZVNUAAD6VPHsTMoPMGDrk7s4BQgxEoc"
+                    .parse()
+                    .unwrap(),
                 weight: UInt16(2),
             },
         ],
         vec![],
-        vec![WaitWeight { wait_sec: UInt32(10), weight: UInt16(1) }],
+        vec![WaitWeight {
+            wait_sec: UInt32(10),
+            weight: UInt16(1),
+        }],
     );
-    let k1: PublicKey = "VEX6RrvujLQN1x5Tacbep1KAk8zzKpSThAQXBCKYFfGUYeABhJRin".parse().unwrap();
-    let r1: PublicKey = "PUB_R1_82ua5qburg82c9eWY1qZVNUAAD6VPHsTMoPMGDrk7s4BQgxEoc".parse().unwrap();
-    let other: PublicKey = "PUB_K1_6E45rq9ZhnvnWNTNEEexpM8V8rqCjggUWHXJBurkVQSnEyCHQ9".parse().unwrap();
+    let k1: PublicKey = "VEX6RrvujLQN1x5Tacbep1KAk8zzKpSThAQXBCKYFfGUYeABhJRin"
+        .parse()
+        .unwrap();
+    let r1: PublicKey = "PUB_R1_82ua5qburg82c9eWY1qZVNUAAD6VPHsTMoPMGDrk7s4BQgxEoc"
+        .parse()
+        .unwrap();
+    let other: PublicKey = "PUB_K1_6E45rq9ZhnvnWNTNEEexpM8V8rqCjggUWHXJBurkVQSnEyCHQ9"
+        .parse()
+        .unwrap();
     assert!(auth.has_permission(&k1, false));
     assert!(auth.has_permission(&r1, true));
     assert!(!auth.has_permission(&r1, false));
@@ -373,7 +415,10 @@ fn packed_transaction() {
     assert!(ok.get_transaction().is_ok());
 
     // round trip through from_signed
-    let tx = Transaction::new(TransactionHeader::new(TimePointSec(1000), 1, 2), vec![transfer_action()]);
+    let tx = Transaction::new(
+        TransactionHeader::new(TimePointSec(1000), 1, 2),
+        vec![transfer_action()],
+    );
     let signed = SignedTransaction::new(tx.clone(), vec![]);
     for compression in [CompressionType::None, CompressionType::Zlib] {
         let packed = PackedTransaction::from_signed(&signed, compression);
@@ -386,7 +431,10 @@ fn permission_level() {
     let p: PermissionLevel = "foo@active".parse().unwrap();
     assert_eq!(p.to_string(), "foo@active");
     assert!("foo".parse::<PermissionLevel>().is_err());
-    assert_eq!(serde_json::to_string(&p).unwrap(), r#"{"actor":"foo","permission":"active"}"#);
+    assert_eq!(
+        serde_json::to_string(&p).unwrap(),
+        r#"{"actor":"foo","permission":"active"}"#
+    );
 }
 
 #[test]

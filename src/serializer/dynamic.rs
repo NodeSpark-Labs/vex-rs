@@ -70,7 +70,10 @@ macro_rules! is_builtin_impl {
 }
 builtins!(is_builtin_impl);
 
-fn encode_typed<T: ABISerializable + DeserializeOwned>(value: &Value, encoder: &mut ABIEncoder) -> Result<()> {
+fn encode_typed<T: ABISerializable + DeserializeOwned>(
+    value: &Value,
+    encoder: &mut ABIEncoder,
+) -> Result<()> {
     let v: T = T::deserialize(value).map_err(|e| Error::msg(e.to_string()))?;
     v.to_abi(encoder);
     Ok(())
@@ -81,7 +84,10 @@ fn decode_typed<T: ABISerializable + Serialize>(decoder: &mut ABIDecoder) -> Res
 }
 
 fn default_typed<T: ABISerializable>() -> Result<Value> {
-    Err(Error::msg(format!("Unable to determine default value for {}", T::abi_type())))
+    Err(Error::msg(format!(
+        "Unable to determine default value for {}",
+        T::abi_type()
+    )))
 }
 
 macro_rules! builtin_dispatch {
@@ -159,7 +165,12 @@ pub fn encode_json(abi: &ABI, type_name: &str, value: &Value) -> Result<Bytes> {
     Ok(Bytes(encoder.into_data()))
 }
 
-fn encode_any(value: &Value, type_name: &str, encoder: &mut ABIEncoder, ctx: &mut Ctx) -> Result<()> {
+fn encode_any(
+    value: &Value,
+    type_name: &str,
+    encoder: &mut ABIEncoder,
+    ctx: &mut Ctx,
+) -> Result<()> {
     if ctx.path.len() > MAX_DEPTH * 2 {
         return Err(Error::msg("Maximum encoding depth exceeded"));
     }
@@ -250,14 +261,18 @@ fn encode_inner(value: &Value, name: &str, encoder: &mut ABIEncoder, ctx: &mut C
                 )))
             }
         };
-        let idx = variant.types.iter().position(|t| *t == v_name).ok_or_else(|| {
-            let types: Vec<String> = variant.types.iter().map(|t| format!("'{}'", t)).collect();
-            Error::msg(format!(
-                "Unknown variant type '{}', expected one of {}",
-                v_name,
-                types.join(", ")
-            ))
-        })?;
+        let idx = variant
+            .types
+            .iter()
+            .position(|t| *t == v_name)
+            .ok_or_else(|| {
+                let types: Vec<String> = variant.types.iter().map(|t| format!("'{}'", t)).collect();
+                Error::msg(format!(
+                    "Unknown variant type '{}', expected one of {}",
+                    v_name,
+                    types.join(", ")
+                ))
+            })?;
         encoder.write_varuint32(idx as u32);
         ctx.path.push(format!("v{}", idx));
         encode_any(v_value, &v_name, encoder, ctx)?;
@@ -273,7 +288,12 @@ fn encode_inner(value: &Value, name: &str, encoder: &mut ABIEncoder, ctx: &mut C
 
 /// Decode binary data to a JSON value according to the given ABI and type name.
 /// Structs decode to JSON objects (in field order), variants to `["type", value]`.
-pub fn decode_json(abi: &ABI, type_name: &str, data: &[u8], options: &DecodeOptions) -> Result<Value> {
+pub fn decode_json(
+    abi: &ABI,
+    type_name: &str,
+    data: &[u8],
+    options: &DecodeOptions,
+) -> Result<Value> {
     let mut decoder = ABIDecoder::new(data);
     decoder.ignore_invalid_utf8 = options.ignore_invalid_utf8;
     let mut ctx = Ctx {

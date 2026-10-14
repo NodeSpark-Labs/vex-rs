@@ -18,9 +18,9 @@ mod serializable;
 pub use decoder::ABIDecoder;
 pub use dynamic::{decode_json, encode_json, is_builtin_type, DecodeOptions};
 pub use encoder::ABIEncoder;
-pub use serializable::{ABISerializable, AbiBuilder, BinaryExtension};
 #[doc(hidden)]
 pub use serializable::__field_name;
+pub use serializable::{ABISerializable, AbiBuilder, BinaryExtension};
 
 use crate::chain::{Bytes, ABI};
 use crate::Result;
@@ -30,7 +30,7 @@ pub struct Serializer;
 
 impl Serializer {
     /// ABI encode a typed value.
-    pub fn encode<T: ABISerializable + ?Sized>(object: &T) -> Bytes {
+    pub fn encode<T: ABISerializable>(object: &T) -> Bytes {
         let mut encoder = ABIEncoder::new();
         object.to_abi(&mut encoder);
         Bytes::from(encoder.into_data())
@@ -51,7 +51,11 @@ impl Serializer {
     }
 
     /// Decode binary data to a JSON value according to the given ABI and type name.
-    pub fn decode_json(abi: &ABI, type_name: &str, data: impl AsRef<[u8]>) -> Result<serde_json::Value> {
+    pub fn decode_json(
+        abi: &ABI,
+        type_name: &str,
+        data: impl AsRef<[u8]>,
+    ) -> Result<serde_json::Value> {
         decode_json(abi, type_name, data.as_ref(), &DecodeOptions::default())
     }
 

@@ -39,7 +39,9 @@ impl PrivateKey {
                 }
                 PrivateKey::new(key_type, data)
             }
-            Err(Error::Base58(e)) if ignore_checksum_error && e.code == Base58ErrorCode::Checksum => {
+            Err(Error::Base58(e))
+                if ignore_checksum_error && e.code == Base58ErrorCode::Checksum =>
+            {
                 let key_type = if string.starts_with("PVT_R1") {
                     KeyType::R1
                 } else {

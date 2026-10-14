@@ -1,6 +1,8 @@
 #![recursion_limit = "256"]
 use antelope::chain::*;
-use antelope::serializer::{decode_json, ABISerializable, BinaryExtension, DecodeOptions, Serializer};
+use antelope::serializer::{
+    decode_json, ABISerializable, BinaryExtension, DecodeOptions, Serializer,
+};
 use antelope::{abi_struct, abi_variant};
 use serde_json::json;
 
@@ -10,7 +12,11 @@ fn hex<T: ABISerializable>(v: &T) -> String {
 
 fn roundtrip<T>(data: &str, object: T, json: &str)
 where
-    T: ABISerializable + serde::Serialize + serde::de::DeserializeOwned + PartialEq + std::fmt::Debug,
+    T: ABISerializable
+        + serde::Serialize
+        + serde::de::DeserializeOwned
+        + PartialEq
+        + std::fmt::Debug,
 {
     assert_eq!(hex(&object), data);
     let decoded: T = Serializer::decode(Bytes::from_hex(data).unwrap()).unwrap();
@@ -22,7 +28,11 @@ where
 #[test]
 fn array() {
     let array: Vec<String> = vec!["foo".into(), "bar".into(), "baz".into()];
-    roundtrip("0303666f6f036261720362617a", array, r#"["foo","bar","baz"]"#);
+    roundtrip(
+        "0303666f6f036261720362617a",
+        array,
+        r#"["foo","bar","baz"]"#,
+    );
     let abi = ABI::default();
     assert!(Serializer::encode_json(&abi, "string[]", &json!("banana")).is_err());
 
@@ -33,14 +43,23 @@ fn array() {
     }
     let custom: Vec<Custom> = ["hello", "world"]
         .iter()
-        .map(|s| Custom { foo: s.chars().map(|c| c.to_string()).collect() })
+        .map(|s| Custom {
+            foo: s.chars().map(|c| c.to_string()).collect(),
+        })
         .collect();
-    assert_eq!(hex(&custom), "020501680165016c016c016f050177016f0172016c0164");
+    assert_eq!(
+        hex(&custom),
+        "020501680165016c016c016f050177016f0172016c0164"
+    );
     let abi = Serializer::synthesize::<Custom>();
     assert_eq!(
-        Serializer::encode_json(&abi, "custom[]", &json!([{"foo": ["h","e","l","l","o"]}, {"foo": ["w","o","r","l","d"]}]))
-            .unwrap()
-            .hex_string(),
+        Serializer::encode_json(
+            &abi,
+            "custom[]",
+            &json!([{"foo": ["h","e","l","l","o"]}, {"foo": ["w","o","r","l","d"]}])
+        )
+        .unwrap()
+        .hex_string(),
         "020501680165016c016c016f050177016f0172016c0164"
     );
 }
@@ -53,9 +72,21 @@ fn name() {
 
 #[test]
 fn asset() {
-    roundtrip("393000000000000004464f4f00000000", "1.2345 FOO".parse::<Asset>().unwrap(), r#""1.2345 FOO""#);
-    roundtrip("00000000000000000000000000000000", "0 ".parse::<Asset>().unwrap(), r#""0 ""#);
-    roundtrip("04464f4f00000000", "4,FOO".parse::<Symbol>().unwrap(), r#""4,FOO""#);
+    roundtrip(
+        "393000000000000004464f4f00000000",
+        "1.2345 FOO".parse::<Asset>().unwrap(),
+        r#""1.2345 FOO""#,
+    );
+    roundtrip(
+        "00000000000000000000000000000000",
+        "0 ".parse::<Asset>().unwrap(),
+        r#""0 ""#,
+    );
+    roundtrip(
+        "04464f4f00000000",
+        "4,FOO".parse::<Symbol>().unwrap(),
+        r#""4,FOO""#,
+    );
 }
 
 #[test]
@@ -69,9 +100,15 @@ fn struct_with_base() {
     .unwrap();
     let object = json!({"one": "one", "two": 2, "three": "two", "four": ["f", "o", "u", "r"]});
     let enc = Serializer::encode_json(&abi, "bar", &object).unwrap();
-    assert_eq!(enc.hex_string(), "036f6e65020100000000000028cf01040166016f01750172");
+    assert_eq!(
+        enc.hex_string(),
+        "036f6e65020100000000000028cf01040166016f01750172"
+    );
     let dec = Serializer::decode_json(&abi, "bar", &enc).unwrap();
-    assert_eq!(dec.to_string(), r#"{"one":"one","two":2,"three":"two","four":["f","o","u","r"]}"#);
+    assert_eq!(
+        dec.to_string(),
+        r#"{"one":"one","two":2,"three":"two","four":["f","o","u","r"]}"#
+    );
 }
 
 abi_struct! {
@@ -111,7 +148,10 @@ fn struct_object() {
     assert_eq!(test.fields[2].r#type, "public_key[]?");
     assert_eq!(test.fields[3].r#type, "other");
     let dynamic = Serializer::decode_json(&abi, "test", Serializer::encode(&object)).unwrap();
-    assert_eq!(dynamic, json!({"foo": "bar", "things": ["a","b","c"], "keys": null, "other": {"doeet": true}}));
+    assert_eq!(
+        dynamic,
+        json!({"foo": "bar", "things": ["a","b","c"], "keys": null, "other": {"doeet": true}})
+    );
 }
 
 abi_struct! {
@@ -143,7 +183,11 @@ fn struct_macro() {
 
 #[test]
 fn string_and_bool() {
-    roundtrip("0b68656c6c6f20776f726c64", String::from("hello world"), r#""hello world""#);
+    roundtrip(
+        "0b68656c6c6f20776f726c64",
+        String::from("hello world"),
+        r#""hello world""#,
+    );
     roundtrip("01", true, "true");
 }
 
@@ -151,7 +195,9 @@ fn string_and_bool() {
 fn public_keys() {
     roundtrip(
         "000223e0ae8aacb41b06dc74af1a56b2eb69133f07f7f75bd1d5e53316bff195edf4",
-        "PUB_K1_5AHoNnWetuDhKWSDx3WUf8W7Dg5xjHCMc4yHmmSiaJCFvvAgnB".parse::<PublicKey>().unwrap(),
+        "PUB_K1_5AHoNnWetuDhKWSDx3WUf8W7Dg5xjHCMc4yHmmSiaJCFvvAgnB"
+            .parse::<PublicKey>()
+            .unwrap(),
         r#""PUB_K1_5AHoNnWetuDhKWSDx3WUf8W7Dg5xjHCMc4yHmmSiaJCFvvAgnB""#,
     );
     roundtrip(
@@ -177,21 +223,44 @@ fn signatures() {
                 efb2d5af4d4d8de3e0871525aa14905af60ca17a1bb80e0cf9c3b46908a0f14f72567a2f140c3a3bd2ef074c010000006d737b226f7269\
                 67696e223a2268747470733a2f2f6b656f73642e696e76616c6964222c2274797065223a22776562617574686e2e676574222c22636861\
                 6c6c656e6765223a226f69567235794848304a4336453962446675347142735a6a527a70416c5131505a50436e5974766850556b3d227d";
-    roundtrip(data, wa.parse::<Signature>().unwrap(), &format!("\"{}\"", wa));
+    roundtrip(
+        data,
+        wa.parse::<Signature>().unwrap(),
+        &format!("\"{}\"", wa),
+    );
 }
 
 #[test]
 fn time_points() {
-    roundtrip("f8b88a3cd5620400", TimePoint(1234567890123000), r#""2009-02-13T23:31:30.123""#);
-    roundtrip("d2029649", TimePointSec(1234567890), r#""2009-02-13T23:31:30""#);
+    roundtrip(
+        "f8b88a3cd5620400",
+        TimePoint(1234567890123000),
+        r#""2009-02-13T23:31:30.123""#,
+    );
+    roundtrip(
+        "d2029649",
+        TimePointSec(1234567890),
+        r#""2009-02-13T23:31:30""#,
+    );
 }
 
 #[test]
 fn optionals() {
     let abi = ABI::default();
-    assert_eq!(Serializer::decode_json(&abi, "public_key?", [0u8]).unwrap(), json!(null));
-    assert_eq!(Serializer::decode_json(&abi, "bool?", [1u8, 1]).unwrap(), json!(true));
-    assert_eq!(Serializer::encode_json(&abi, "signature?", &json!(null)).unwrap().hex_string(), "00");
+    assert_eq!(
+        Serializer::decode_json(&abi, "public_key?", [0u8]).unwrap(),
+        json!(null)
+    );
+    assert_eq!(
+        Serializer::decode_json(&abi, "bool?", [1u8, 1]).unwrap(),
+        json!(true)
+    );
+    assert_eq!(
+        Serializer::encode_json(&abi, "signature?", &json!(null))
+            .unwrap()
+            .hex_string(),
+        "00"
+    );
     assert!(Serializer::encode_json(&abi, "bool", &json!(null)).is_err());
     assert_eq!(hex(&Option::<Signature>::None), "00");
     let v: Option<bool> = Serializer::decode([1u8, 1]).unwrap();
@@ -220,8 +289,18 @@ fn decoding_errors() {
         err.to_string(),
         "Decoding error at root<type1>.foo<type2?>.bar<type3[]>.6.baz<int8>: Read past end of buffer"
     );
-    let err = Serializer::encode_json(&abi, "type1", &json!({"foo": {"bar": [{"baz": "not int"}]}})).unwrap_err();
-    assert!(err.to_string().starts_with("Encoding error at root<type1>.foo<type2?>.bar<type3[]>.0.baz<int8>:"), "{}", err);
+    let err = Serializer::encode_json(
+        &abi,
+        "type1",
+        &json!({"foo": {"bar": [{"baz": "not int"}]}}),
+    )
+    .unwrap_err();
+    assert!(
+        err.to_string()
+            .starts_with("Encoding error at root<type1>.foo<type2?>.bar<type3[]>.0.baz<int8>:"),
+        "{}",
+        err
+    );
 }
 
 #[test]
@@ -233,10 +312,20 @@ fn variant_abi() {
         }"#,
     )
     .unwrap();
-    assert_eq!(Serializer::decode_json(&abi, "foo", [0x00, 0xff]).unwrap(), json!(["uint8", 255]));
-    assert_eq!(Serializer::encode_json(&abi, "foo", &json!(["uint8", 255])).unwrap().hex_string(), "00ff");
     assert_eq!(
-        Serializer::encode_json(&abi, "foo", &json!(["struct?", {"field1": true}])).unwrap().hex_string(),
+        Serializer::decode_json(&abi, "foo", [0x00, 0xff]).unwrap(),
+        json!(["uint8", 255])
+    );
+    assert_eq!(
+        Serializer::encode_json(&abi, "foo", &json!(["uint8", 255]))
+            .unwrap()
+            .hex_string(),
+        "00ff"
+    );
+    assert_eq!(
+        Serializer::encode_json(&abi, "foo", &json!(["struct?", {"field1": true}]))
+            .unwrap()
+            .hex_string(),
         "030101"
     );
     assert!(Serializer::decode_json(&abi, "foo", [0x04, 0xff]).is_err());
@@ -262,11 +351,19 @@ abi_variant! {
 #[test]
 fn custom_variant() {
     assert_eq!(MyVariant::Str("hello".into()).variant_index(), 0);
-    assert_eq!(serde_json::to_string(&MyVariant::Str("hello".into())).unwrap(), r#"["string","hello"]"#);
+    assert_eq!(
+        serde_json::to_string(&MyVariant::Str("hello".into())).unwrap(),
+        r#"["string","hello"]"#
+    );
     assert_eq!(hex(&MyVariant::Bool(false)), "0100");
     assert_eq!(hex(&MyVariant::Str("hello".into())), "000568656c6c6f");
     let v: MyVariant = serde_json::from_value(json!(["my_struct", {"foo": "bar"}])).unwrap();
-    assert_eq!(v, MyVariant::Struct(MyStruct { foo: Some("bar".into()) }));
+    assert_eq!(
+        v,
+        MyVariant::Struct(MyStruct {
+            foo: Some("bar".into())
+        })
+    );
     let v: MyVariant = serde_json::from_value(json!(["my_struct[]", [{"foo": "bar"}]])).unwrap();
     assert_eq!(v.variant_index(), 4);
     let v: MyVariant = Serializer::decode([1u8, 1]).unwrap();
@@ -304,14 +401,24 @@ fn fixed_size_array() {
     assert_eq!(decoded, abi);
     assert_eq!(decoded.structs[2].fields[0].r#type, "int32[4]");
     assert_eq!(decoded.action_results[2].result_type, "int32[4]");
-    assert_eq!(Serializer::encode_json(&abi, "basic", &json!({"input": 1})).unwrap().hex_string(), "01000000");
     assert_eq!(
-        Serializer::encode_json(&abi, "array", &json!({"input": [1, 2, 3, 4]})).unwrap().hex_string(),
+        Serializer::encode_json(&abi, "basic", &json!({"input": 1}))
+            .unwrap()
+            .hex_string(),
+        "01000000"
+    );
+    assert_eq!(
+        Serializer::encode_json(&abi, "array", &json!({"input": [1, 2, 3, 4]}))
+            .unwrap()
+            .hex_string(),
         "0401000000020000000300000004000000"
     );
     let fixed = Serializer::encode_json(&abi, "fixed", &json!({"input": [1, 2, 3, 4]})).unwrap();
     assert_eq!(fixed.hex_string(), "01000000020000000300000004000000");
-    assert_eq!(Serializer::decode_json(&abi, "fixed", &fixed).unwrap(), json!({"input": [1, 2, 3, 4]}));
+    assert_eq!(
+        Serializer::decode_json(&abi, "fixed", &fixed).unwrap(),
+        json!({"input": [1, 2, 3, 4]})
+    );
     // typed fixed arrays
     let typed = [Int32(1), Int32(2), Int32(3), Int32(4)];
     assert_eq!(hex(&typed), "01000000020000000300000004000000");
@@ -393,8 +500,20 @@ fn binary_extensions() {
     assert_eq!(v.b, BinaryExtension(Some(UInt8(2))));
     let abi = Serializer::synthesize::<Ext>();
     assert_eq!(abi.get_struct("ext").unwrap().fields[1].r#type, "uint8$");
-    assert_eq!(Serializer::decode_json(&abi, "ext", [1u8]).unwrap(), json!({"a": 1, "b": null}));
-    let strict = decode_json(&abi, "ext", &[1u8], &DecodeOptions { strict_extensions: true, ..Default::default() }).unwrap();
+    assert_eq!(
+        Serializer::decode_json(&abi, "ext", [1u8]).unwrap(),
+        json!({"a": 1, "b": null})
+    );
+    let strict = decode_json(
+        &abi,
+        "ext",
+        &[1u8],
+        &DecodeOptions {
+            strict_extensions: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
     assert_eq!(strict, json!({"a": 1, "b": 0}));
 }
 
@@ -404,7 +523,10 @@ fn abi_binary_roundtrip() {
     let bin = abi.to_binary();
     assert_eq!(ABI::from_binary(&bin).unwrap(), abi);
     let blob = Blob(bin);
-    assert_eq!(ABI::from_blob(&blob.to_string().parse().unwrap()).unwrap(), abi);
+    assert_eq!(
+        ABI::from_blob(&blob.to_string().parse().unwrap()).unwrap(),
+        abi
+    );
     // JSON output includes the legacy empty fields
     let json = serde_json::to_value(&abi).unwrap();
     assert_eq!(json["error_messages"], json!([]));
@@ -419,5 +541,8 @@ fn synthesize_transaction() {
     let data = Serializer::encode(&signed);
     let json = Serializer::decode_json(&abi, "signed_transaction", &data).unwrap();
     assert_eq!(json, serde_json::to_value(&signed).unwrap());
-    assert_eq!(Serializer::encode_json(&abi, "signed_transaction", &json).unwrap(), data);
+    assert_eq!(
+        Serializer::encode_json(&abi, "signed_transaction", &json).unwrap(),
+        data
+    );
 }

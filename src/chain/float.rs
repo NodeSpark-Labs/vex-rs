@@ -102,7 +102,11 @@ impl fmt::Display for Float32 {
 impl fmt::Display for Float64 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.0.is_infinite() {
-            f.write_str(if self.0 > 0.0 { "Infinity" } else { "-Infinity" })
+            f.write_str(if self.0 > 0.0 {
+                "Infinity"
+            } else {
+                "-Infinity"
+            })
         } else {
             fmt::Display::fmt(&self.0, f)
         }
@@ -116,7 +120,8 @@ pub struct Float128(pub [u8; 16]);
 impl Float128 {
     pub fn from_slice(data: &[u8]) -> Result<Self> {
         Ok(Float128(
-            data.try_into().map_err(|_| Error::msg("Invalid float128"))?,
+            data.try_into()
+                .map_err(|_| Error::msg("Invalid float128"))?,
         ))
     }
 

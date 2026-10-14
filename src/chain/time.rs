@@ -12,7 +12,11 @@ const BLOCK_TIMESTAMP_EPOCH_MS: i64 = 946_684_800_000;
 /// Parse an ISO 8601 date string as UTC, e.g. `2020-07-01T17:32:13` or `2021-08-25T02:37:24.500`.
 fn parse_date_ms(s: &str) -> Result<i64> {
     let trimmed = s.trim().trim_end_matches('Z');
-    let formats = ["%Y-%m-%dT%H:%M:%S%.f", "%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S%.f"];
+    let formats = [
+        "%Y-%m-%dT%H:%M:%S%.f",
+        "%Y-%m-%dT%H:%M",
+        "%Y-%m-%d %H:%M:%S%.f",
+    ];
     for format in formats {
         if let Ok(dt) = NaiveDateTime::parse_from_str(trimmed, format) {
             return Ok(dt.and_utc().timestamp_millis());
@@ -83,26 +87,40 @@ macro_rules! time_common {
         }
 
         impl serde::Serialize for $name {
-            fn serialize<S: serde::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
+            fn serialize<S: serde::Serializer>(
+                &self,
+                s: S,
+            ) -> std::result::Result<S::Ok, S::Error> {
                 s.collect_str(self)
             }
         }
 
         impl<'de> serde::Deserialize<'de> for $name {
-            fn deserialize<D: serde::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+            fn deserialize<D: serde::Deserializer<'de>>(
+                d: D,
+            ) -> std::result::Result<Self, D::Error> {
                 struct V;
                 impl<'de> serde::de::Visitor<'de> for V {
                     type Value = $name;
                     fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
                         f.write_str("a date string or integer")
                     }
-                    fn visit_str<E: serde::de::Error>(self, v: &str) -> std::result::Result<$name, E> {
+                    fn visit_str<E: serde::de::Error>(
+                        self,
+                        v: &str,
+                    ) -> std::result::Result<$name, E> {
                         $name::from_string(v).map_err(E::custom)
                     }
-                    fn visit_i64<E: serde::de::Error>(self, v: i64) -> std::result::Result<$name, E> {
+                    fn visit_i64<E: serde::de::Error>(
+                        self,
+                        v: i64,
+                    ) -> std::result::Result<$name, E> {
                         $name::from_integer(v).map_err(E::custom)
                     }
-                    fn visit_u64<E: serde::de::Error>(self, v: u64) -> std::result::Result<$name, E> {
+                    fn visit_u64<E: serde::de::Error>(
+                        self,
+                        v: u64,
+                    ) -> std::result::Result<$name, E> {
                         $name::from_integer(v as i64).map_err(E::custom)
                     }
                 }
@@ -210,7 +228,9 @@ pub struct BlockTimestamp(pub u32);
 
 impl BlockTimestamp {
     pub fn from_milliseconds(ms: i64) -> Self {
-        BlockTimestamp(div_round(ms - BLOCK_TIMESTAMP_EPOCH_MS, 500).clamp(0, u32::MAX as i64) as u32)
+        BlockTimestamp(
+            div_round(ms - BLOCK_TIMESTAMP_EPOCH_MS, 500).clamp(0, u32::MAX as i64) as u32,
+        )
     }
 
     /// Create from the raw value (slot number).

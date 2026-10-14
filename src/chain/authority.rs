@@ -94,8 +94,9 @@ impl Authority {
     /// authority in a `updateauth` action or it might be rejected.
     pub fn sort(&mut self) {
         // nodeos expects the binary ordering of the C++ types
-        self.keys
-            .sort_by(|a, b| (a.key.key_type.index(), &a.key.data).cmp(&(b.key.key_type.index(), &b.key.data)));
+        self.keys.sort_by(|a, b| {
+            (a.key.key_type.index(), &a.key.data).cmp(&(b.key.key_type.index(), &b.key.data))
+        });
         self.accounts
             .sort_by_key(|a| (a.permission.actor.0, a.permission.permission.0));
         self.waits.sort_by_key(|a| a.wait_sec.0);

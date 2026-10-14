@@ -42,7 +42,9 @@ impl BlockId {
 
     /// The block number encoded in this id.
     pub fn block_num(&self) -> UInt32 {
-        UInt32(u32::from_be_bytes([self.0[0], self.0[1], self.0[2], self.0[3]]))
+        UInt32(u32::from_be_bytes([
+            self.0[0], self.0[1], self.0[2], self.0[3],
+        ]))
     }
 }
 
