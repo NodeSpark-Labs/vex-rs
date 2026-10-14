@@ -1,37 +1,37 @@
 # vex-rs
 
-Library Rust untuk blockchain **VEXANIUM** (protokol Antelope/EOSIO).
-Ini adalah port Rust dari [`@pixelgeniusid/antelope`](https://github.com/pixelgenius-id/antelope),
-ditujukan untuk dipakai di backend Rust (async, `tokio`).
+Rust library for the **VEXANIUM** blockchain (Antelope/EOSIO protocol).
+A Rust port of [`@pixelgeniusid/antelope`](https://github.com/pixelgenius-id/antelope),
+built for use in async Rust backends (`tokio`).
 
-## Fitur
+## Features
 
-| Modul | Isi |
+| Module | Contents |
 |---|---|
-| `chain` | `Name`, `Asset`/`Symbol`, integer (`UInt64`, `VarUInt`, ...), float, `Bytes`, `Blob`, checksum, `TimePoint*`, `BlockId`, `PublicKey`/`PrivateKey`/`Signature` (K1, R1, WA), `Action`, `Transaction`, `SignedTransaction`, `PackedTransaction` (zlib), `Authority`, `ABI` |
-| `serializer` | Encode/decode biner ABI. **Typed** (`Serializer::encode/decode` + macro `abi_struct!`/`abi_variant!`) dan **dinamis** berbasis ABI kontrak (`Serializer::encode_json/decode_json`) |
-| `crypto` | Sign (canonical, deterministik seperti library JS), verify, recover, ECDH shared secret |
-| `base58` | Base58 + checksum double-sha256 / ripemd160 |
-| `api` (feature `api`, default) | Client HTTP `/v1/chain` & `/v1/history` (reqwest + rustls) |
-| `p2p` (feature `p2p`, default) | Tipe pesan P2P + client TCP (tokio) |
+| `chain` | `Name`, `Asset`/`Symbol`, integers (`UInt64`, `VarUInt`, ...), floats, `Bytes`, `Blob`, checksums, `TimePoint*`, `BlockId`, `PublicKey`/`PrivateKey`/`Signature` (K1, R1, WA), `Action`, `Transaction`, `SignedTransaction`, `PackedTransaction` (zlib), `Authority`, `ABI` |
+| `serializer` | Binary ABI encoding/decoding. **Typed** (`Serializer::encode/decode` plus the `abi_struct!`/`abi_variant!` macros) and **dynamic**, driven by a contract ABI (`Serializer::encode_json/decode_json`) |
+| `crypto` | Signing (canonical, deterministic like the JS library), verification, key recovery, ECDH shared secrets |
+| `base58` | Base58 with double-sha256 / ripemd160 checksums |
+| `api` (feature `api`, default) | HTTP client for `/v1/chain` and `/v1/history` (reqwest + rustls) |
+| `p2p` (feature `p2p`, default) | P2P message types and a TCP client (tokio) |
 
-Prefix kunci legacy default adalah `VEX` (`PublicKey::to_legacy_string()`), dan parsing menerima
-prefix legacy apa pun (`VEX...`, `EOS...`).
+The default legacy key prefix is `VEX` (`PublicKey::to_legacy_string()`), and parsing accepts
+any legacy prefix (`VEX...`, `EOS...`).
 
-## Instalasi
+## Installation
 
 ```toml
 [dependencies]
 vex = { git = "https://github.com/NodeSpark-Labs/vex-rs" }
-serde = { version = "1", features = ["derive"] } # dibutuhkan oleh abi_struct!
+serde = { version = "1", features = ["derive"] } # required by abi_struct!
 tokio = { version = "1", features = ["full"] }
 ```
 
-Tanpa HTTP/P2P (mis. hanya untuk signing): `default-features = false`.
+Without HTTP/P2P (e.g. signing only): `default-features = false`.
 
-## Contoh
+## Examples
 
-### Kunci & signature
+### Keys and signatures
 
 ```rust
 use vex::chain::PrivateKey;
@@ -45,7 +45,7 @@ assert!(sig.verify_message(b"hello", &public));
 assert_eq!(sig.recover_message(b"hello")?, public);
 ```
 
-### Transfer `vex.token`
+### `vex.token` transfer
 
 ```rust
 use vex::abi_struct;
@@ -61,7 +61,7 @@ abi_struct! {
     }
 }
 
-let client = APIClient::new("https://node-vexanium-anda");
+let client = APIClient::new("https://your-vexanium-node");
 let info = client.v1().chain.get_info().await?;
 
 let action = Action::from_typed(
@@ -85,7 +85,7 @@ let result = client
 println!("{}", result.transaction_id);
 ```
 
-### Data aksi dinamis (pakai ABI kontrak dari node)
+### Dynamic action data (using the contract ABI from the node)
 
 ```rust
 let abi = client.v1().chain.get_abi("vex.token").await?.abi.unwrap();
@@ -107,37 +107,37 @@ use vex::api::v1::GetTableRowsParams;
 let mut params = GetTableRowsParams::new("vex.token", "accounts");
 params.scope = Some("alice".into());
 let rows = client.v1().chain.get_table_rows(&params).await?;          // JSON
-// atau typed (binary, didecode dengan ABISerializable):
+// or typed (binary rows decoded with ABISerializable):
 // let rows = client.v1().chain.get_table_rows_typed::<Account>(&params).await?;
 ```
 
-### Di backend (axum / actix)
+### In a backend (axum / actix)
 
-`APIClient` bersifat `Clone + Send + Sync` dan memakai satu connection pool, jadi cukup dibuat
-sekali dan disimpan di state aplikasi. Lihat `examples/backend_state.rs`.
+`APIClient` is `Clone + Send + Sync` and shares a single connection pool, so create it once
+and store it in your application state. See `examples/backend_state.rs`.
 
-Error API nodeos tersedia lewat `err.as_api_error()` (`code()`, `name()`, `details()`).
+nodeos API errors are available through `err.as_api_error()` (`code()`, `name()`, `details()`).
 
-## Perbedaan dengan versi JavaScript
+## Differences from the JavaScript version
 
-- Integer memakai tipe primitif Rust (`UInt64(u64)`, `Int128(i128)`, ...); operator `+ - * /`
-  wrap-around seperti C++, ada juga `div_round`, `div_ceil`, `try_from_i128`, `clamped_from_i128`.
-- Struct/variant didefinisikan dengan macro `abi_struct!` / `abi_variant!` (pengganti decorator).
-  `Serializer::synthesize::<T>()` menghasilkan ABI dari tipe tersebut.
-- Decode array ukuran tetap (`int32[4]`) tidak membaca prefix panjang (sesuai C++).
-- `Authority::sort()` mengurutkan sesuai urutan biner yang diminta nodeos.
-- `get_table_rows` mengembalikan `next_key` mentah (string) dari node.
+- Integers wrap Rust primitives (`UInt64(u64)`, `Int128(i128)`, ...); the `+ - * /` operators
+  wrap around like C++, and `div_round`, `div_ceil`, `try_from_i128`, `clamped_from_i128` are available.
+- Structs and variants are defined with the `abi_struct!` / `abi_variant!` macros (instead of
+  decorators). `Serializer::synthesize::<T>()` builds an ABI from such a type.
+- Fixed size arrays (`int32[4]`) are decoded without a length prefix (matching C++).
+- `Authority::sort()` sorts in the binary order nodeos expects.
+- `get_table_rows` returns the raw `next_key` string from the node.
 
-## Test
+## Testing
 
 ```sh
-cargo test                       # semua fitur
-cargo test --no-default-features # core saja
+cargo test                       # all features
+cargo test --no-default-features # core only
 ```
 
-Test API memakai respons nyata yang direkam oleh test-suite library JS (`tests/fixtures/api`),
-fixture token disesuaikan ke `vex.token`/`VEX`/`vexcore`.
+API tests replay real node responses recorded by the JavaScript library test suite
+(`tests/fixtures/api`); token-related fixtures are adapted to `vex.token` / `VEX` / `vexcore`.
 
-## Lisensi
+## License
 
-Lihat [LICENSE](LICENSE) (sama dengan library aslinya).
+See [LICENSE](LICENSE) (same as the original library).
