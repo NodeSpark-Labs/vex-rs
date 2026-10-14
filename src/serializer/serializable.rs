@@ -224,7 +224,7 @@ pub fn __field_name(name: &str) -> String {
 /// (your crate needs to depend on `serde` with the `derive` feature).
 ///
 /// ```
-/// use antelope::{abi_struct, chain::{Asset, Name}, Serializer};
+/// use vex::{abi_struct, chain::{Asset, Name}, Serializer};
 ///
 /// abi_struct! {
 ///     pub struct Transfer("transfer") {
@@ -295,7 +295,7 @@ macro_rules! abi_struct {
 /// type names must be unique.
 ///
 /// ```
-/// use antelope::{abi_variant, chain::{Name, UInt8}, Serializer};
+/// use vex::{abi_variant, chain::{Name, UInt8}, Serializer};
 ///
 /// abi_variant! {
 ///     pub enum MyVariant("my_variant") {

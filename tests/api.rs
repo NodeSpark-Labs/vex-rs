@@ -5,10 +5,10 @@
 
 use std::path::PathBuf;
 
-use antelope::api::{APICall, APIClient, APIProvider, APIResponse};
-use antelope::chain::*;
-use antelope::{Error, Result};
 use async_trait::async_trait;
+use vex::api::{APICall, APIClient, APIProvider, APIResponse};
+use vex::chain::*;
+use vex::{Error, Result};
 
 struct MockProvider {
     api: String,

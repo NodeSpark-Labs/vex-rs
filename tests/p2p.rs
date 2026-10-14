@@ -1,7 +1,7 @@
-use antelope::chain::*;
-use antelope::p2p::*;
-use antelope::Serializer;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use vex::chain::*;
+use vex::p2p::*;
+use vex::Serializer;
 
 fn ff(prefix: &str) -> String {
     format!("{}{}{}", prefix, "ff".repeat(30), prefix)

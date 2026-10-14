@@ -1,7 +1,7 @@
-use antelope::base58;
-use antelope::chain::Bytes;
-use antelope::utils::array_to_hex;
-use antelope::Base58ErrorCode;
+use vex::base58;
+use vex::chain::Bytes;
+use vex::utils::array_to_hex;
+use vex::Base58ErrorCode;
 
 fn hex(s: &str) -> Vec<u8> {
     Bytes::from_hex(s).unwrap().0

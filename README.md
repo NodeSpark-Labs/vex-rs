@@ -1,6 +1,6 @@
-# antelope (Rust)
+# vex-rs
 
-Library Rust untuk blockchain berbasis Antelope (dulu EOSIO), kompatibel dengan **VEXANIUM**.
+Library Rust untuk blockchain **VEXANIUM** (protokol Antelope/EOSIO).
 Ini adalah port Rust dari [`@pixelgeniusid/antelope`](https://github.com/pixelgenius-id/antelope),
 ditujukan untuk dipakai di backend Rust (async, `tokio`).
 
@@ -22,7 +22,7 @@ prefix legacy apa pun (`VEX...`, `EOS...`).
 
 ```toml
 [dependencies]
-antelope = { git = "https://github.com/NodeSpark-Labs/jws-rs" }
+vex = { git = "https://github.com/NodeSpark-Labs/vex-rs" }
 serde = { version = "1", features = ["derive"] } # dibutuhkan oleh abi_struct!
 tokio = { version = "1", features = ["full"] }
 ```
@@ -34,7 +34,7 @@ Tanpa HTTP/P2P (mis. hanya untuk signing): `default-features = false`.
 ### Kunci & signature
 
 ```rust
-use antelope::chain::PrivateKey;
+use vex::chain::PrivateKey;
 
 let key: PrivateKey = "5KQvfsPJ9YvGuVbLRLXVWPNubed6FWvV8yax6cNSJEzB4co3zFu".parse()?;
 let public = key.to_public()?;
@@ -48,9 +48,9 @@ assert_eq!(sig.recover_message(b"hello")?, public);
 ### Transfer `vex.token`
 
 ```rust
-use antelope::abi_struct;
-use antelope::api::APIClient;
-use antelope::chain::*;
+use vex::abi_struct;
+use vex::api::APIClient;
+use vex::chain::*;
 
 abi_struct! {
     pub struct Transfer("transfer") {
@@ -102,7 +102,7 @@ let decoded = action.decode_data_with_abi(&abi)?; // serde_json::Value
 ### Table rows
 
 ```rust
-use antelope::api::v1::GetTableRowsParams;
+use vex::api::v1::GetTableRowsParams;
 
 let mut params = GetTableRowsParams::new("vex.token", "accounts");
 params.scope = Some("alice".into());

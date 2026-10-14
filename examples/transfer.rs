@@ -4,9 +4,9 @@
 //! VEX_API=https://your-node VEX_KEY=5K... cargo run --example transfer -- from to "1.0000 VEX" memo
 //! ```
 
-use antelope::abi_struct;
-use antelope::api::APIClient;
-use antelope::chain::{
+use vex::abi_struct;
+use vex::api::APIClient;
+use vex::chain::{
     Action, Asset, Name, PermissionLevel, PrivateKey, SignedTransaction, Transaction,
 };
 
@@ -20,7 +20,7 @@ abi_struct! {
 }
 
 #[tokio::main]
-async fn main() -> antelope::Result<()> {
+async fn main() -> vex::Result<()> {
     let url = std::env::var("VEX_API").expect("VEX_API not set");
     let key: PrivateKey = std::env::var("VEX_KEY").expect("VEX_KEY not set").parse()?;
     let args: Vec<String> = std::env::args().skip(1).collect();

@@ -7,8 +7,8 @@ use crate::Result;
 /// P2P protocol client.
 ///
 /// ```no_run
-/// # async fn run() -> antelope::Result<()> {
-/// use antelope::p2p::{P2PClient, NetMessage};
+/// # async fn run() -> vex::Result<()> {
+/// use vex::p2p::{P2PClient, NetMessage};
 ///
 /// let mut client = P2PClient::connect("127.0.0.1:9876").await?;
 /// while let Some(message) = client.next_message().await? {

@@ -1,6 +1,6 @@
-use antelope::base58;
-use antelope::chain::{KeyType, PrivateKey, PublicKey};
-use antelope::Base58ErrorCode;
+use vex::base58;
+use vex::chain::{KeyType, PrivateKey, PublicKey};
+use vex::Base58ErrorCode;
 
 const K1_WIF: &str = "5KQvfsPJ9YvGuVbLRLXVWPNubed6FWvV8yax6cNSJEzB4co3zFu";
 const K1_PUB: &str = "PUB_K1_6RrvujLQN1x5Tacbep1KAk8zzKpSThAQXBCKYFfGUYeACcSRFs";
@@ -17,7 +17,7 @@ fn private_key_encoding() {
         "PVT_K1_2be6BwD56MHeVD4P95bRLdnP3oB3P4QRAXAsSKh4N8Xu6d4Aux"
     );
     assert_eq!(
-        antelope::utils::array_to_hex(&key.data),
+        vex::utils::array_to_hex(&key.data),
         "d25968ebfce6e617bdb839b5a66cfc1fdd051d79a91094f7baceded449f84333"
     );
     let r1: PrivateKey = R1_PVT.parse().unwrap();
@@ -140,7 +140,7 @@ fn sign_and_recover() {
 #[test]
 fn signature_string_roundtrip() {
     let s = "SIG_K1_KdNTcLLSyzUFC4AdMxEDn58X8ZN368euanvet4jucUdSPXvLkgsG32tpcqVvnDR9Xv1f7HsTm6kocjeZzFGvUSc2yCbdEA";
-    let sig: antelope::chain::Signature = s.parse().unwrap();
+    let sig: vex::chain::Signature = s.parse().unwrap();
     assert_eq!(sig.to_string(), s);
     assert_eq!(sig.data.len(), 65);
 }

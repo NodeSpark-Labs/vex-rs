@@ -1,13 +1,13 @@
 [package]
-name = "antelope"
+name = "vex"
 version = "1.2.0"
 edition = "2021"
 rust-version = "1.75"
-description = "Rust library for working with Antelope powered blockchains (VEXANIUM compatible). Rust port of @pixelgeniusid/antelope."
+description = "Rust library for the VEXANIUM blockchain (Antelope/EOSIO protocol). Rust port of @pixelgeniusid/antelope."
 license-file = "LICENSE"
-repository = "https://github.com/NodeSpark-Labs/jws-rs"
+repository = "https://github.com/NodeSpark-Labs/vex-rs"
 readme = "README.md"
-keywords = ["antelope", "eosio", "vexanium", "blockchain", "abi"]
+keywords = ["vexanium", "vex", "antelope", "eosio", "blockchain"]
 categories = ["cryptography::cryptocurrencies", "encoding"]
 
 [features]

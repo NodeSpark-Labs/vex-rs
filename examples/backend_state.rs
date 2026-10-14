@@ -5,14 +5,14 @@
 
 use std::sync::Arc;
 
-use antelope::api::APIClient;
+use vex::api::APIClient;
 
 struct AppState {
     chain: APIClient,
 }
 
 #[tokio::main]
-async fn main() -> antelope::Result<()> {
+async fn main() -> vex::Result<()> {
     let url = std::env::var("VEX_API").unwrap_or_else(|_| "http://127.0.0.1:8888".into());
     let state = Arc::new(AppState {
         chain: APIClient::new(&url),

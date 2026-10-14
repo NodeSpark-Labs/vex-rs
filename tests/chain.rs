@@ -1,6 +1,6 @@
-use antelope::abi_struct;
-use antelope::chain::*;
-use antelope::serializer::Serializer;
+use vex::abi_struct;
+use vex::chain::*;
+use vex::serializer::Serializer;
 
 abi_struct! {
     pub struct Transfer("transfer") {

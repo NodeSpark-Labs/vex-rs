@@ -1,7 +1,7 @@
-//! # antelope
+//! # vex
 //!
-//! Rust library for working with Antelope powered blockchains (formerly EOSIO,
-//! compatible with **VEXANIUM**). This is a Rust port of the
+//! Rust library for the **VEXANIUM** blockchain (Antelope/EOSIO protocol).
+//! This is a Rust port of the
 //! [`@pixelgeniusid/antelope`](https://github.com/pixelgenius-id/antelope) JavaScript library.
 //!
 //! * [`chain`] — core types: [`Name`](chain::Name), [`Asset`](chain::Asset),
@@ -13,7 +13,7 @@
 //! * [`p2p`] — P2P protocol types and client (feature `p2p`).
 //!
 //! ```
-//! use antelope::chain::{PrivateKey, Checksum256};
+//! use vex::chain::{PrivateKey, Checksum256};
 //!
 //! let key: PrivateKey = "5KQvfsPJ9YvGuVbLRLXVWPNubed6FWvV8yax6cNSJEzB4co3zFu".parse().unwrap();
 //! let public = key.to_public().unwrap();

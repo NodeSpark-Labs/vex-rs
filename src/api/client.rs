@@ -138,8 +138,8 @@ impl Error {
 /// Antelope/EOSIO HTTP API client.
 ///
 /// ```no_run
-/// # async fn run() -> antelope::Result<()> {
-/// use antelope::api::APIClient;
+/// # async fn run() -> vex::Result<()> {
+/// use vex::api::APIClient;
 ///
 /// let client = APIClient::new("https://api.vexanium.com");
 /// let info = client.v1().chain.get_info().await?;

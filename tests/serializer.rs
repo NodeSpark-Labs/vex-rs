@@ -1,10 +1,8 @@
 #![recursion_limit = "256"]
-use antelope::chain::*;
-use antelope::serializer::{
-    decode_json, ABISerializable, BinaryExtension, DecodeOptions, Serializer,
-};
-use antelope::{abi_struct, abi_variant};
 use serde_json::json;
+use vex::chain::*;
+use vex::serializer::{decode_json, ABISerializable, BinaryExtension, DecodeOptions, Serializer};
+use vex::{abi_struct, abi_variant};
 
 fn hex<T: ABISerializable>(v: &T) -> String {
     Serializer::encode(v).hex_string()
